@@ -35,8 +35,8 @@ RETURNS geometry LANGUAGE plpgsql IMMUTABLE STRICT AS $$
     zoom_pixels_per_degree_longitude := ((map_tile_width / world_lon_width) * zoom_tile_count);
     tile_width_in_degrees := (map_tile_width / zoom_pixels_per_degree_longitude);
     tile_height_in_degrees := (map_tile_height / zoom_pixels_per_degree_latitude);
-    lat_index := ((latitude_to_mercator_latitude(Y(lonlat::geometry)) - mercator_latitude_origin) / tile_height_in_degrees);
-    lon_index = ((X(lonlat::geometry) - map_tile_origin_lon) / tile_width_in_degrees);
+    lat_index := ((latitude_to_mercator_latitude(ST_Y(lonlat::geometry)) - mercator_latitude_origin) / tile_height_in_degrees);
+    lon_index = ((ST_X(lonlat::geometry) - map_tile_origin_lon) / tile_width_in_degrees);
     RETURN ST_MakePoint(lon_index, lat_index);
   END
 $$;
@@ -79,8 +79,8 @@ RETURNS geometry LANGUAGE plpgsql IMMUTABLE STRICT AS $$
   DECLARE
   BEGIN
     RETURN ST_MakePoint(
-      (FLOOR(X(tile_indices) * cells_across) / cells_across),
-      (FLOOR(Y(tile_indices) * cells_down) / cells_down));
+      (FLOOR(ST_X(tile_indices) * cells_across) / cells_across),
+      (FLOOR(ST_Y(tile_indices) * cells_down) / cells_down));
   END
 $$;
 
